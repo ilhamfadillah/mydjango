@@ -1,36 +1,52 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from .models import Person
-from django.utils.crypto import get_random_string
+from django.shortcuts import render, redirect
+from django.template import loader
+from .models import Person
+from django.views.generic import TemplateView
+from .forms import PersonForm
+
 
 def index(request):
     persons = Person.objects.all()
-    output = Person.objects.all().values_list()
-    return HttpResponse(output)
+    return render(request, 'mybasic/index.html', {
+        'persons': persons,
+    })
+
 
 def create(request):
-    person = Person()
-    person.first_name = get_random_string(5)
-    person.last_name = "account"
-    person.save()
-    result = str(person.id) + " | " + person.first_name + " | " + person.last_name
-    return HttpResponse(result)
+    form = PersonForm()
+    return render(request, 'mybasic/create.html', {'form': form})
 
-def read(request, id):
-    try:
-        person = Person.objects.get(id=id)
-        result = person.first_name+" "+person.last_name
-    except Person.DoesNotExist:
-        result = "data does not exist"
-    return HttpResponse(result)
+
+def store(request):
+    if request.method == "POST":
+        form = PersonForm(request.POST)
+        if form.is_valid():
+            person = Person()
+            person.first_name = request.POST['first_name']
+            person.last_name = request.POST['last_name']
+            person.save()
+    return redirect(index)
+
+def edit(request, id):
+    person = Person.objects.get(id=id)
+    form = PersonForm(initial={
+        'first_name': person.first_name,
+        'last_name': person.last_name
+    })
+    return render(request, 'mybasic/edit.html', {
+        'form': form,
+        'person': person
+    })
 
 def update(request, id):
     person = Person.objects.get(id=id)
-    person.first_name = get_random_string(5)
+    person.first_name = request.POST['first_name']
+    person.last_name = request.POST['last_name']
     person.save()
-    return HttpResponse(person.first_name + " " + person.last_name)
+    return redirect(index)
 
 def delete(request, id):
     person = Person.objects.get(id=id)
     person.delete()
-    return HttpResponse("data already deleted")
+    return redirect(index)
