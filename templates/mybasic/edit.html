@@ -9,7 +9,8 @@
 <body>
     <form action="{% url 'update' person.id %}" method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <input type="text" name="first_name" placeholder="first name" value="{{person.first_name}}">
+        <input type="text" name="last_name" placeholder="last name" value="{{person.last_name}}">
         <button type="submit">Save</button>
     </form>
 </body>

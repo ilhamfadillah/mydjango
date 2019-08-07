@@ -9,7 +9,8 @@
 <body>
     <form action="store" method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+        <input type="text" name="first_name" placeholder="first name" value="">
+        <input type="text" name="last_name" placeholder="last name" value="">
         <button type="submit">Save</button>
     </form>
 </body>
